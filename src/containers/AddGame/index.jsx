@@ -65,7 +65,7 @@ const FormularioEx = () => {
                         <Divider />
                         <WrapperField>
                             <Field
-                                label="Nombre del videojuego"
+                                label="Nombre del videojue"
                                 variant="outlined"
                                 name="name"
                                 size="small"
