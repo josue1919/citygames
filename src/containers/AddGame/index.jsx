@@ -1,93 +1,77 @@
-import React, { useState } from 'react';
-import { storage, db } from '../../firebase/init';
+import React, { useEffect, useState } from 'react';
 import { Formik, Field, ErrorMessage, Form, useFormikContext } from 'formik';
 import { TextField } from "formik-material-ui";
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { message } from 'antd';
-import FileUpload from '../../components/UploadImage/index';
+import { db, storage } from '../../firebase/init';
+import { Upload, message } from 'antd'
 
-
-const AddGame=()=>{
+const FormularioEx = () => {
+    const [picture, setpicture] = useState(null);
 
     const key = 'updatable';
     const openMessage = () => {
         message.loading({ content: 'Guardando...', key });
         setTimeout(() => {
-            message.success({ content: 'Se guardo correctamente', key, duration: 2 });
+            message.success({ content: 'Juego mandado a revision...', key, duration: 2 });
         }, 600);
     };
 
-    return(
-        <>
+    return (
+        <Wrapper>
             <Formik
                 initialValues={{
                     name: "",
-                    price: "",
-                    images: null,
                     description: "",
                 }}
                 validationSchema={yup.object({
                     name: yup.string()
-                        .required("Necesario poner nombre al platillo."),
-                    price: yup.number()
-                        .required("¿Cuánto cuesta el platillo?")
-                        .moreThan(-1, "No puede tener precios negativos"),
+                        .required("Necesario poner nombre "),
+                  
                     description: yup.string()
-                        .required("Escribe una breve descripción del platillo.")
+                        .required("Escribe una descripcion")
                         .min(8, "La descripción es muy corta"),
                 })}
 
-                onSubmit={(values, {resetForm}) => {
-                    const { name, price, images, description } = values;
+                onSubmit={async (values, { resetForm }) => {
+                    const { name,  description } = values;
 
-                    const storageRef = storage.ref(`/pictures/${images.name}`);
-                    const task = storageRef.put(images.originFileObj);
-                    task.on('state_changed', snapshot => {
-
-                    }, error => {
-                        console.log(error.message);
-                    }, async () => {
-                        const images = await (await task).ref.getDownloadURL()
-                        db.collection('dishes').doc()
-                            .set({
-                                name,
-                                price,
-                                images,
-                                description,
-                            })
-
-                        openMessage();
-                        resetForm();
-                    })
-                }}
+                    const newDishes = {
+                        createDate: new Date(),
+                        name,
+                        description,
+                    }
+                    db.collection('games')
+                        .doc()
+                        .set(newDishes).then(res => {
+                            openMessage()
+                        }).catch(error => {
+                            message.error(error);
+                        })
+                    setTimeout(() => {
+                        resetForm()
+                    }, 2000);
+                }
+                }
             >
-                {({ setFieldValue, handleSubmit }) => (
-                    <WrapperForm onSubmit={handleSubmit}>
+                {({ isSubmitting }) => (
+                    <WrapperForm noValidate >
                         <WrapperUpLoadImage>
-                            <p>Platillo</p>
+                            <p>Imagen</p>
                             <UpLoadImage>
-                                <FileUpload
-                                    onImageLoaded={images => setFieldValue("file", images)} />
+                                {/* <UploadFile /> */}
                             </UpLoadImage>
                         </WrapperUpLoadImage>
                         <Divider />
                         <WrapperField>
                             <Field
-                                label="Nombre del platillo"
+                                label="Nombre del videojuego"
                                 variant="outlined"
                                 name="name"
                                 size="small"
                                 component={TextField}
                             />
-                            <Field
-                                label="Precio"
-                                type="number"
-                                variant="outlined"
-                                name="price"
-                                size="small"
-                                component={TextField}
-                            />
+                            
                             <Field
                                 label="Descripción"
                                 variant="outlined"
@@ -96,22 +80,35 @@ const AddGame=()=>{
                                 rows={3}
                                 component={TextField}
                             />
-                            <Button type="submit">
+                            <Button type="submit" >
                                 Guardar
-						</Button>
+						    </Button>
                         </WrapperField>
                     </WrapperForm>
                 )}
             </Formik>
-        </>
-
+        </Wrapper>
     );
 };
 
+
+const Wrapper = styled.div`
+width:100%;
+display:flex;
+justify-content:center;
+/* margin-top:40px; */
+
+`;
+
+
+
 const WrapperForm = styled(Form)`
+
+background-color:#dfdcef;
      display: flex;
+    
     /* justify-content: space-between; */
-    margin: 0 auto;
+    /* margin: 0 auto; */
     padding: 40px 40px;
     width: 700px;
     height: 385px;
@@ -125,6 +122,14 @@ const WrapperField = styled.div`
     flex-direction: column;
     justify-content: space-between;
     width: 60%;
+
+   
+`;
+
+const InputField = styled(Field)`
+    border:1px solid red;
+
+   
 `;
 
 const WrapperUpLoadImage = styled.div`
@@ -171,9 +176,24 @@ const Button = styled.button`
     border: solid 1px;
     border-radius:40px;
     height: 40px;
-    cursor: pointer;
-    background-color: #ff7931;
-    color: #fff;
+    color: #fff !important;
+color: #318aac !important;
+  font-size: 20px;
+  font-weight: 500;
+
+  background: rgba(0,0,0,0);
+  border: 2px solid;
+  border-color: #318aac;
+  transition: all 1s ease;
+  position: relative;
+  cursor: pointer;
+  outline:none;
+  &:hover {
+    background: #318aac;
+  color: #fff !important;
+}
 `;
 
-export default AddGame;
+
+
+export default FormularioEx;

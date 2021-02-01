@@ -47,7 +47,7 @@ flex-direction:column;
 `;
 const ContainerTop=styled.div`
 
-margin-top:10px;
+margin-top:20px;
 display:flex;
 justify-content:space-around;
 

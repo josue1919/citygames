@@ -85,7 +85,7 @@ const Login=()=>{
 const WrapperLogin=styled.div`
 display:flex;
 justify-content:center;
-margin-top:60px;
+/* margin-top:60px; */
 
 
 `;

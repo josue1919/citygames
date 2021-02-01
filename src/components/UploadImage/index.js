@@ -52,7 +52,7 @@ class FileUpload extends React.Component {
         const { imageUrl } = this.state;
         return (
             <Upload
-                name="image"
+                name="images"
                 listType="picture-card"
                 className="avatar-uploader"
                 showUploadList={false}
